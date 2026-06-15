@@ -1,0 +1,93 @@
+groups:
+  # ── Infrastructure alerts ──────────────────────────────────
+  - name: infrastructure
+    rules:
+
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value | humanize }}% for more than 2 minutes."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | humanize }}%"
+
+      - alert: DiskSpaceLow
+        expr: (1 - (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"})) * 100 > 85
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk usage is {{ $value | humanize }}%"
+
+  # ── Application alerts ─────────────────────────────────────
+  - name: application
+    rules:
+
+      - alert: ServiceDown
+        expr: up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is DOWN"
+          description: "{{ $labels.job }} has been down for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: |
+          rate(http_requests_total{status_code=~"5.."}[5m])
+          /
+          rate(http_requests_total[5m]) * 100 > 5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Error rate is {{ $value | humanize }}% (threshold: 5%)"
+
+      - alert: HighRequestLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(http_request_duration_seconds_bucket[5m])
+          ) > 1
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High p95 latency on {{ $labels.job }}"
+          description: "p95 latency is {{ $value | humanizeDuration }} (threshold: 1s)"
+
+      - alert: TooManyActiveRequests
+        expr: http_active_requests > 50
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Too many active requests"
+          description: "{{ $value }} active requests (threshold: 50)"
+
+  # ── SLO alerts ─────────────────────────────────────────────
+  - name: slo
+    rules:
+
+      - alert: SLOErrorBudgetBurning
+        expr: |
+          rate(http_requests_total{status_code=~"5.."}[1h])
+          /
+          rate(http_requests_total[1h]) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SLO error budget burning fast"
+          description: "Error rate {{ $value | humanizePercentage }} is exceeding 1% SLO threshold"

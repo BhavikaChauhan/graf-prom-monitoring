@@ -1,0 +1,17 @@
+{
+  "name": "taskflow-monitored-app",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "load-test": "node load-test.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "prom-client": "^15.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

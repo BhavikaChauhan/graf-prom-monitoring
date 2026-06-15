@@ -1,0 +1,40 @@
+{
+  "title": "TaskFlow — SLO Dashboard",
+  "uid": "taskflow-slo",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-24h", "to": "now" },
+  "panels": [
+    {
+      "id": 1, "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "title": "Availability SLO (Target: 99.9%)", "type": "gauge",
+      "targets": [{ "expr": "avg_over_time(up{job=\"nodeapp\"}[24h]) * 100", "legendFormat": "Uptime %" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 98, "max": 100, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": 0 }, { "color": "yellow", "value": 99 }, { "color": "green", "value": 99.9 }] } } }
+    },
+    {
+      "id": 2, "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "title": "Error Rate SLO (Target: < 1%)", "type": "gauge",
+      "targets": [{ "expr": "sum(rate(nodeapp_http_requests_total{status_code=~\"5..\"}[24h])) / sum(rate(nodeapp_http_requests_total[24h])) * 100", "legendFormat": "Error %" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 5, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": 0 }, { "color": "yellow", "value": 0.5 }, { "color": "red", "value": 1 }] } } }
+    },
+    {
+      "id": 3, "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "title": "Latency SLO — p95 (Target: < 500ms)", "type": "gauge",
+      "targets": [{ "expr": "histogram_quantile(0.95, sum(rate(nodeapp_http_request_duration_seconds_bucket[24h])) by (le)) * 1000", "legendFormat": "p95 ms" }],
+      "fieldConfig": { "defaults": { "unit": "ms", "min": 0, "max": 2000, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": 0 }, { "color": "yellow", "value": 300 }, { "color": "red", "value": 500 }] } } }
+    },
+    {
+      "id": 4, "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "title": "Error Budget Remaining", "type": "gauge",
+      "targets": [{ "expr": "100 - (sum(rate(nodeapp_http_requests_total{status_code=~\"5..\"}[30d])) / sum(rate(nodeapp_http_requests_total[30d])) * 100 / 1) * 100", "legendFormat": "Budget %" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "max": 100, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": 0 }, { "color": "yellow", "value": 25 }, { "color": "green", "value": 50 }] } } }
+    },
+    {
+      "id": 5, "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
+      "title": "Uptime — 24h Rolling Window", "type": "timeseries",
+      "targets": [{ "expr": "avg_over_time(up{job=\"nodeapp\"}[5m]) * 100", "legendFormat": "Availability %" }],
+      "fieldConfig": { "defaults": { "unit": "percent", "min": 95, "max": 100, "custom": { "lineWidth": 2, "fillOpacity": 20 }, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": 0 }, { "color": "green", "value": 99.9 }] } } }
+    }
+  ]
+}
