@@ -173,11 +173,3 @@ docker compose up -d
 | SLOErrorBudgetBurning | Error rate > 1% over 1h | Critical |
 
 ---
-
-## 👩‍💻 About
-
-Built by **Bhavika Chauhan** — DevOps & Cloud Engineer.
-
-📅 [Book a free 20-min DevOps audit call](https://calendly.com/bhavikachauhan)
-💼 [LinkedIn](https://linkedin.com/in/bhavika-chauhan-276b41332)
-✍️ [Medium](https://medium.com/@bhavika.engineered)
