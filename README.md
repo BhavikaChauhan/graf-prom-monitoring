@@ -64,8 +64,8 @@ Production monitoring stack with **custom app metrics, infra dashboards, SLO tra
 ## 🚀 Run Locally (2 minutes)
 
 ```bash
-git clone https://github.com/BhavikaChauhan/grafana-prometheus-monitoring
-cd grafana-prometheus-monitoring
+git clone https://github.com/BhavikaChauhan/graf-prom-monitoring.git
+cd graf-prom-monitoring
 
 docker compose up -d
 
